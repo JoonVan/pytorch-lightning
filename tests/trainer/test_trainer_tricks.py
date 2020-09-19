@@ -143,7 +143,8 @@ def test_overfit_batch_limits(tmpdir):
 
 def test_overfit_batches_shuffling(tmpdir):
     model = EvalModelTemplate()
-    trainer = Trainer(overfit_batches=1, distributed_backend="ddp_cpu", num_processes=2)
+    trainer = Trainer(overfit_batches=1, max_steps=1, distributed_backend="ddp_cpu", num_processes=2)
+    trainer.fit(model)
     # train_loader = DataLoader(model.train_dataloader().dataset, shuffle=False)
     train_loader = DataLoader(model.train_dataloader().dataset, shuffle=True)
     model.train_dataloader = lambda: train_loader
