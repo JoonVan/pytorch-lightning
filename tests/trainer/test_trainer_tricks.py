@@ -148,7 +148,7 @@ def test_overfit_batches_shuffling(tmpdir):
     # train_loader = DataLoader(model.train_dataloader().dataset, shuffle=False)
     train_loader = DataLoader(model.train_dataloader().dataset, shuffle=True)
     model.train_dataloader = lambda: train_loader
-    trainer.reset_train_dataloader(model)
+    # trainer.reset_train_dataloader(model)
     sampler = trainer.train_dataloader.sampler
     assert isinstance(sampler, DistributedSampler) and not sampler.shuffle
 
