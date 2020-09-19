@@ -1,7 +1,7 @@
 from copy import deepcopy
 import pytest
 import torch
-from torch.utils.data import RandomSampler, SequentialSampler, DataLoader
+from torch.utils.data import RandomSampler, SequentialSampler, DataLoader, DistributedSampler
 
 import tests.base.develop_utils as tutils
 from pytorch_lightning import Trainer
@@ -139,6 +139,18 @@ def test_overfit_batch_limits(tmpdir):
 
             loader_num_batches, dataloaders = Trainer(limit_test_batches=10)._reset_eval_dataloader(model, split)
             assert loader_num_batches[0] == 10
+
+
+def test_overfit_batches_shuffling(tmpdir):
+    model = EvalModelTemplate()
+    trainer = Trainer(overfit_batches=1, distributed_backend="ddp_cpu", num_processes=2)
+    # train_loader = DataLoader(model.train_dataloader().dataset, shuffle=False)
+    train_loader = DataLoader(model.train_dataloader().dataset, shuffle=True)
+    model.train_dataloader = lambda: train_loader
+    trainer.reset_train_dataloader(model)
+    sampler = trainer.train_dataloader.sampler
+    assert isinstance(sampler, DistributedSampler) and not sampler.shuffle
+
 
 
 def test_model_reset_correctly(tmpdir):
